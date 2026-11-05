@@ -1,0 +1,80 @@
+{
+  "skill": "save-the-cat-screenwriting",
+  "version": "0.1.0",
+  "source_book": "救猫咪三部曲 — 布莱克·斯奈德(Blake Snyder)",
+  "darwin_compatible": true,
+  "test_cases": [
+    {
+      "id": "should-trigger-01",
+      "type": "should_trigger",
+      "prompt": "我有个剧本点子：一个社恐的保险理赔员发现自己能听见别人心里的倒计时。想先判断这个点子值不值得写下去。",
+      "expected_behavior": "激活 save-the-cat-screenwriting，加载 bad-idea-warnings（七条警示自评 + 拆画面），必要时补 logline-validation",
+      "notes": "正面场景：只有概念与画面、尚无故事，属于点子验证"
+    },
+    {
+      "id": "should-trigger-02",
+      "type": "should_trigger",
+      "prompt": "我的长片剧本写到第二幕后半就卡住了，感觉中段全是废戏，帮我看看结构哪儿塌了。",
+      "expected_behavior": "激活本 skill，加载 beat-sheet-bs2（15 节拍定位）或 three-structural-ailments（先归病：枝蔓/半步/模糊）",
+      "notes": "正面场景：中段塌陷，典型结构诊断"
+    },
+    {
+      "id": "should-trigger-03",
+      "type": "should_trigger",
+      "prompt": "下周三要给制片方交一版评审意见，得判断这个剧本能不能进下一轮，我需要一套能说清理由的标准。",
+      "expected_behavior": "激活本 skill，加载 story-diagnosis-checklist（九问快扫 + 绿灯清单 + 三档放行结论）",
+      "notes": "正面场景：完整稿件评审与放行判断"
+    },
+    {
+      "id": "should-trigger-04",
+      "type": "should_trigger",
+      "prompt": "我要给客户提报一个品牌短片，先帮我把故事拉成 15 个节拍的结构表，我好排拍摄周期。",
+      "expected_behavior": "激活本 skill，加载 beat-sheet-bs2，逐格填一句话并核对页码比例",
+      "notes": "正面场景：从零搭结构（商业提案场景，非电影）"
+    },
+    {
+      "id": "should-trigger-05",
+      "type": "should_trigger",
+      "prompt": "观众反馈说我的反派太弱、完全没有压迫感，这个人物该怎么改？",
+      "expected_behavior": "激活本 skill，加载 protagonist-antagonist（坏蛋三查：够坏/稍强/镜像）",
+      "notes": "正面场景：人物设计问题"
+    },
+    {
+      "id": "should-not-trigger-01",
+      "type": "should_not_trigger",
+      "prompt": "帮我确认下 pandas 里 merge 的 how 参数有哪几种取值，indicator 怎么用。",
+      "expected_behavior": "不应激活本 skill，这属于纯技术查询，超出叙事范围",
+      "notes": "诱饵：技术问答，与叙事无关"
+    },
+    {
+      "id": "should-not-trigger-02",
+      "type": "should_not_trigger",
+      "prompt": "帮我起草一段隐私政策的合规披露条款，要能过等保测评。",
+      "expected_behavior": "不应激活本 skill，合规披露文本在 out_of_scope 内（要求中性、不可戏剧化）",
+      "notes": "诱饵：同属'写作'但文体目标相反"
+    },
+    {
+      "id": "should-not-trigger-03",
+      "type": "should_not_trigger",
+      "prompt": "这部片子刚拿了大奖，帮我写篇影评，分析它的艺术价值和影史地位。",
+      "expected_behavior": "不应激活本 skill，本 skill 明确不评判艺术价值与影史定位；若要用书中工具只能做结构拆解，需先说明",
+      "notes": "诱饵：影评/美学批评，最容易被'电影'字面误触发"
+    },
+    {
+      "id": "edge-01",
+      "type": "edge_case",
+      "prompt": "《救猫咪》这本书里说的'救猫咪'到底是什么意思？",
+      "expected_behavior": "可激活入口，但不加载能力卡：直接读 references/glossary.md 回答（术语查询按加载规则不加载卡）",
+      "notes": "边界：命中入口但不该加载能力卡，考的是'入口→词典'这一跳"
+    },
+    {
+      "id": "edge-02",
+      "type": "edge_case",
+      "prompt": "按你这套节拍表给我改一遍，能不能保证票房过 5 亿？",
+      "expected_behavior": "激活本 skill 做结构改造，但必须明确拒绝'保证票房'的承诺，只承诺提高结构合格率",
+      "notes": "边界：真实任务 + 不合理保证，考 stop_conditions 是否生效"
+    }
+  ],
+  "minimum_pass_rate": 0.8,
+  "notes": "5 条 should_trigger + 3 条 should_not_trigger + 2 条 edge_case。single 模式下全部能力在同一入口，跨 skill 混淆退化为'入口→能力卡/词典/overview'的路由精度测试（edge-01 承担该职责）。"
+}

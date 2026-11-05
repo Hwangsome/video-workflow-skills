@@ -1,0 +1,90 @@
+{
+  "skill": "script-director",
+  "version": "1.0.0",
+  "test_cases": [
+    {
+      "id": "should-trigger-01",
+      "type": "should_trigger",
+      "prompt": "帮我写一条一次性马桶刷的带货脚本，42 秒",
+      "expected_behavior": "激活 script-director，从 brief 四问开始，产出七步流水线与分镜表",
+      "notes": "正面：完整带货脚本"
+    },
+    {
+      "id": "should-trigger-02",
+      "type": "should_trigger",
+      "prompt": "这个产品的视频分镜我排不出来，卖点太多不知道留哪个",
+      "expected_behavior": "激活 script-director，先做 S2 砍卖点再排结构，不要直接给分镜",
+      "notes": "正面：分镜卡在卖点取舍"
+    },
+    {
+      "id": "should-trigger-03",
+      "type": "should_trigger",
+      "prompt": "拍产品演示片，怎么才能证明刷头不掉毛",
+      "expected_behavior": "激活 script-director（S5 演示设计），不要拆给 credible-evidence",
+      "notes": "跨技能混淆：'证明'字样是伪信号，任务本体是拍摄"
+    },
+    {
+      "id": "should-trigger-04",
+      "type": "should_trigger",
+      "prompt": "这条口播稿前 3 秒怎么改",
+      "expected_behavior": "激活 script-director（S3 钩子），输出第 1 镜的具体改写",
+      "notes": "正面：口播钩子"
+    },
+    {
+      "id": "should-trigger-05",
+      "type": "should_trigger",
+      "prompt": "我这条短视频脚本审一下，跑了两万播放没转化",
+      "expected_behavior": "激活 script-director（S7 七问打分），必须给镜号证据，并检查第 7 问转化",
+      "notes": "正面：审片 + 转化缺口"
+    },
+    {
+      "id": "should-not-trigger-01",
+      "type": "should_not_trigger",
+      "prompt": "帮我看看这份季度总结哪里不行",
+      "expected_behavior": "不应激活；应激活 stickiness-audit（纯文字材料）",
+      "notes": "诱饵：文字材料诊断（诱饵容错为 0）"
+    },
+    {
+      "id": "should-not-trigger-02",
+      "type": "should_not_trigger",
+      "prompt": "老板不信我们方案可靠，我怎么证明",
+      "expected_behavior": "不应激活；应激活 credible-evidence（无拍摄诉求）",
+      "notes": "诱饵：纯说服场景（诱饵容错为 0）"
+    },
+    {
+      "id": "should-not-trigger-03",
+      "type": "should_not_trigger",
+      "prompt": "帮我把这份合同的条款表述改清楚",
+      "expected_behavior": "不应激活任何技能；精确文档不适用黏性原则",
+      "notes": "诱饵：精确文档（诱饵容错为 0）"
+    },
+    {
+      "id": "should-not-trigger-04",
+      "type": "should_not_trigger",
+      "prompt": "怎么在抖音投流，预算怎么分配到不同素材",
+      "expected_behavior": "不应激活；投放与出价超出范围",
+      "notes": "诱饵：投放策略（诱饵容错为 0）"
+    },
+    {
+      "id": "edge-01",
+      "type": "edge_case",
+      "prompt": "帮我把这份 PPT 改成能讲 5 分钟的稿子",
+      "expected_behavior": "不应激活（不是拍摄脚本）；可提示用 made-to-stick 的结构与 core-message 定主线",
+      "notes": "边界：口头表达但不是拍片"
+    },
+    {
+      "id": "edge-02",
+      "type": "edge_case",
+      "prompt": "我要拍一条 3 分钟的 brand film，讲讲我们公司十年怎么走过来的",
+      "expected_behavior": "可部分使用（结构与情感），但需说明 3 分钟叙事与 15-90 秒带货结构不同，长片叙事不在覆盖范围",
+      "notes": "边界：超出时长区间，要主动说明限制"
+    },
+    {
+      "id": "edge-03",
+      "type": "edge_case",
+      "prompt": "帮我总结一下这本书第三章讲了什么",
+      "expected_behavior": "不应激活；纯信息查询",
+      "notes": "边界：查询类"
+    }
+  ]
+}
