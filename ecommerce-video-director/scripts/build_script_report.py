@@ -3,6 +3,7 @@
 
 import argparse
 import json
+import math
 from pathlib import Path
 import sys
 
@@ -88,6 +89,8 @@ def validate(data, planning=None):
         {"start": s.get("start"), "end": s.get("end"), "visual": s["visual"]} for s in segments]})
     if errors:
         raise ValueError("；".join(errors))
+    if "pacing_model" in data:
+        validate_pacing(data, ids)
     alternatives = data.get("alternatives", {})
     notes = data.get("alternative_notes", {})
     if not isinstance(notes, dict):
@@ -123,6 +126,65 @@ def validate(data, planning=None):
             text(item.get(field), "self_check." + key + "." + field)
 
 
+def validate_pacing(data, segment_ids):
+    if data["pacing_model"] != "event-driven-v1":
+        raise ValueError("不支持的pacing_model")
+    for segment in data["segments"]:
+        pacing = segment.get("pacing")
+        if not isinstance(pacing, dict):
+            raise ValueError(f'{segment["id"]}缺少pacing')
+        for key in ("hold_reason", "edit_intent"):
+            text(pacing.get(key), "pacing." + key)
+        events = pacing.get("progression")
+        if not isinstance(events, list) or not events:
+            raise ValueError("progression必须有可观察事件")
+        previous = -1
+        for index, event in enumerate(events):
+            if not isinstance(event, dict):
+                raise ValueError("推进点必须为对象")
+            at = event.get("at")
+            if (type(at) not in (int, float) or not math.isfinite(at) or at < 0
+                    or at >= segment["end"] - segment["start"] or at <= previous
+                    or (index == 0 and at != 0)):
+                raise ValueError("段内推进时间必须从0起、严格递增且小于本段时长")
+            text(event.get("event"), "progression.event")
+            previous = at
+    pacing_check = data.get("self_check", {}).get("pacing") if isinstance(data.get("self_check"), dict) else None
+    if not isinstance(pacing_check, dict):
+        raise ValueError("缺少self_check.pacing")
+    for key in ("status", "method", "result"):
+        text(pacing_check.get(key), "self_check.pacing." + key)
+    review = data.get("editorial_review")
+    if not isinstance(review, dict):
+        raise ValueError("缺少editorial_review")
+    if review.get("mode") not in ("independent-agent", "self-review", "not-run"):
+        raise ValueError("审查方式无效")
+    if review.get("reviewed_asset_id") != data["asset_id"] or review.get("reviewed_version") != data["version"]:
+        raise ValueError("审查必须对应当前脚本ID和版本，不能沿用旧版结论")
+    if review.get("verdict") not in ("通过", "需改", "待核实", "未执行"):
+        raise ValueError("审查结论无效")
+    if (review["mode"] == "not-run") != (review["verdict"] == "未执行"):
+        raise ValueError("未执行审查不能记录已审结论")
+    for key in ("reviewer", "pacing_summary"):
+        text(review.get(key), "editorial_review." + key)
+    strings(review.get("limitations"), "editorial_review.limitations")
+    findings = review.get("findings")
+    if not isinstance(findings, list):
+        raise ValueError("审稿findings必须为列表")
+    for finding in findings:
+        if not isinstance(finding, dict):
+            raise ValueError("审稿问题必须为对象")
+        strings(finding.get("segment_ids"), "finding.segment_ids")
+        if not finding["segment_ids"] or any(s not in segment_ids for s in finding["segment_ids"]):
+            raise ValueError("审稿问题必须关联本稿实际段号")
+        for key in ("issue", "impact", "change", "reason"):
+            text(finding.get(key), "finding." + key)
+        if finding.get("status") not in ("已修正", "保留并说明", "待处理"):
+            raise ValueError("审稿问题处理状态无效")
+    if review["verdict"] == "通过" and any(f["status"] == "待处理" for f in findings):
+        raise ValueError("仍有待处理问题不能标审查通过")
+
+
 def cell(value):
     return str(value).replace("\r", " ").replace("\n", " / ").replace("|", r"\|")
 
@@ -149,6 +211,13 @@ def markdown(data):
          s["voiceover"], " / ".join(s["sound"]) or "无", " / ".join(s["screen_text"]) or "无"] for s in data["segments"]])
     lines += ["", "## 03 叙事与情绪节奏"]
     lines += table(["段落", "叙事功能/信息转折", "情绪与触发"], [[s["id"], s["beat"], s["emotion"]] for s in data["segments"]])
+    if data.get("pacing_model") == "event-driven-v1":
+        lines += ["", "### 内容段不是单镜头", "以下为段内内容推进的编排估计，不是实测用时或最终分镜。"]
+        for segment in data["segments"]:
+            pacing = segment["pacing"]
+            lines += ["", "### " + segment["id"] + " · 段内节奏"]
+            lines += table(["段内秒数（估计）", "可感知变化"], [[f'{e["at"]:g}', e["event"]] for e in pacing["progression"]])
+            lines += ["", "- 停留理由：" + cell(pacing["hold_reason"]), "- 衔接建议：" + cell(pacing["edit_intent"])]
     lines += ["", "## 04 文案备选"]
     for category, title in (("openings", "开场"), ("key_claims", "关键卖点表达"), ("endings", "结尾")):
         lines += ["### " + title]
@@ -165,11 +234,21 @@ def markdown(data):
             lines.append("无已列出的待核实项；不代表工具已独立核验事实。")
     lines += ["", "## 06 脚本自检结果"]
     labels = {"readthrough": "台词试读", "action_timing": "真实操作时间", "shootability": "动作可拍性", "promise_payoff": "承诺兑现", "claims": "产品主张依据"}
+    if data.get("pacing_model") == "event-driven-v1":
+        labels["pacing"] = "过空/过满与自然行为"
     lines += table(["检查项", "状态", "检查方式", "结果/未完成项"], [[label] + [data["self_check"][key][f] for f in ("status", "method", "result")] for key, label in labels.items()])
     lines += ["### 主张对应依据"]
     lines += table(["ID", "主张", "来源", "状态", "适用范围"], [[c[k] for k in ("id", "statement", "source", "status", "scope")] for c in data["claim_checks"]])
     if not data["claim_checks"]:
         lines.append("无列出的确定性产品主张；仍需核对画面是否暗示未经支持的能力。")
+    if data.get("pacing_model") == "event-driven-v1":
+        review = data["editorial_review"]
+        lines += ["", "### 审稿与修订记录", "",
+                  f'- 方式：{cell(review["mode"])}；审稿者：{cell(review["reviewer"])}',
+                  f'- 对应：{cell(review["reviewed_asset_id"])} / v{review["reviewed_version"]}；结论：{cell(review["verdict"])}',
+                  '- 节奏判断：' + cell(review["pacing_summary"])]
+        lines += table(["段落", "问题", "影响", "修改/保留", "状态", "理由"], [["、".join(f["segment_ids"])] + [f[k] for k in ("issue", "impact", "change", "status", "reason")] for f in review["findings"]])
+        lines += ["", "### 审查限制", ""] + ["- " + cell(v) for v in review["limitations"]]
     return "\n".join(lines) + "\n"
 
 

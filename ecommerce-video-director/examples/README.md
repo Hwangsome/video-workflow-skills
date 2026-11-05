@@ -16,6 +16,8 @@
 
 第七例是当前编剧六项交付规范：[script.json](07-script-package/script.json)、[script.md](07-script-package/script.md)、[report.html](07-script-package/report.html)。承接第六例的合成策划，记录上游ID、版本和概念，文案备选、交接和自检同存一份数据。未执行真人试读、实物计时、实拍或上线验证，不作为真实品牌成绩。
 
+第八例是同一合成脚本的v2节奏修订：[script.json](08-pacing-review/script.json)、[script.md](08-pacing-review/script.md)、[report.html](08-pacing-review/report.html)。保留第七例历史版本；v2把可建议的成片目标从30秒调整为24秒，减少准备与收尾冗余，必要操作仍待样品计时。新增段内推进、停留理由、衔接与实际审稿记录；内容段不是最终镜头，不把24秒或更短自动当成更有效。
+
 前三条输入与输出均在各记录中，方向由作者为覆盖不同机制指定；第四条根据用户明确的DE融合反馈编写，产品条件仍为合成假设。记录不冒充真实消费者验证。这些是主Agent实际完成的创作，不是独立上下文盲测。前三条汇总见 [跨品类演练记录](../evals/creative-exercises.md)。
 
 ## 新记录的格式

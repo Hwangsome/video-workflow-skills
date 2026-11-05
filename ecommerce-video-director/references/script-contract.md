@@ -27,6 +27,8 @@
 
 ## 数据约定与构建
 
+新完整脚本还须读取 [内容节奏契约](pacing.md)：内容段不等于单镜头，记录段内推进、停留理由、剪辑衔接及真实审稿状态。pacing_model:event-driven-v1启用对应结构校验；旧格式仅为兼容，不视为新版审查通过。
+
 结构示例见 [script.json](../examples/07-script-package/script.json)。执行：
 
 ```bash

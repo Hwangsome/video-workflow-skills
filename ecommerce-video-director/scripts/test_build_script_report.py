@@ -11,6 +11,7 @@ from test_render_script import Reader
 
 
 EXAMPLE = Path(__file__).resolve().parents[1] / "examples/07-script-package/script.json"
+PACING_EXAMPLE = Path(__file__).resolve().parents[1] / "examples/08-pacing-review/script.json"
 
 
 class PackageTests(unittest.TestCase):
@@ -104,6 +105,53 @@ class PackageTests(unittest.TestCase):
             self.assertNotEqual(subprocess.run(command, capture_output=True).returncode, 0)
             self.assertEqual(md.read_text(encoding="utf-8"), "独立修改")
             self.assertEqual(source.read_text(encoding="utf-8"), raw)
+
+
+class PacingTests(unittest.TestCase):
+    def setUp(self):
+        self.data = json.loads(PACING_EXAMPLE.read_text(encoding="utf-8"))
+
+    def test_pacing_and_review_remain_in_readable_report(self):
+        builder.validate(self.data)
+        reader = Reader()
+        reader.feed(builder.render(builder.markdown(self.data)))
+        words = " ".join(reader.words)
+        for segment in self.data["segments"]:
+            pacing = segment["pacing"]
+            for event in pacing["progression"]:
+                self.assertIn(event["event"], words)
+            self.assertIn(pacing["hold_reason"], words)
+            self.assertIn(pacing["edit_intent"], words)
+        for key in ("reviewer", "pacing_summary", "verdict"):
+            self.assertIn(self.data["editorial_review"][key], words)
+
+    def test_progression_must_fit_segment_and_remain_ordered(self):
+        for bad_at in (True, float("nan"), -1, 3, 0):
+            bad = copy.deepcopy(self.data)
+            bad["segments"][0]["pacing"]["progression"][1]["at"] = bad_at
+            with self.assertRaises(ValueError):
+                builder.validate(bad)
+
+    def test_review_cannot_apply_to_another_version(self):
+        self.data["editorial_review"]["reviewed_version"] = 1
+        with self.assertRaisesRegex(ValueError, "当前脚本"):
+            builder.validate(self.data)
+
+    def test_unperformed_review_cannot_claim_pass(self):
+        self.data["editorial_review"].update(mode="not-run", verdict="通过")
+        with self.assertRaisesRegex(ValueError, "未执行"):
+            builder.validate(self.data)
+
+    def test_unresolved_findings_cannot_claim_pass(self):
+        self.data["editorial_review"].update(mode="self-review", verdict="通过")
+        self.data["editorial_review"]["findings"][0]["status"] = "待处理"
+        with self.assertRaisesRegex(ValueError, "待处理"):
+            builder.validate(self.data)
+
+    def test_review_findings_must_point_to_real_segments(self):
+        self.data["editorial_review"]["findings"][0]["segment_ids"] = ["S99"]
+        with self.assertRaisesRegex(ValueError, "实际段号"):
+            builder.validate(self.data)
 
 
 if __name__ == "__main__":

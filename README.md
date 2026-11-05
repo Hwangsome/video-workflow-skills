@@ -41,7 +41,7 @@ https://github.com/Hwangsome/video-workflow-skills
 
 请先读取仓库 README 和该目录下的 SKILL.md，再按当前 Agent
 实际支持的技能安装方式，安装完整的 ecommerce-video-director 文件夹，
-保留 references/、scripts/、assets/、examples/ 和 evals/，不要只复制 SKILL.md。
+保留 agents/、references/、scripts/、assets/、examples/ 和 evals/，不要只复制 SKILL.md。
 
 如果已有同名技能，请先比较版本、保留本地修改，再处理更新。
 安装后检查入口与相对引用是否可访问，告诉我实际安装位置、
@@ -156,6 +156,10 @@ cd video-workflow-skills
 
 编剧写的是可以表演、拍摄、剪辑的事件：时间、场景、人物动作、画面、完整台词/旁白、关键声音、屏幕文字，不能用“很无奈”“高级感”代替行为。备选说明适用条件和替换影响；交接区分必须保留与可改，列道具、事实待核实项和简化拍法。时长自检明确实际试读/操作计时与文字估算的区别，不凭时间表宣布可行；具体景别、机位和运镜交给后续导演/分镜。
 
+完整脚本交付前增加 [独立审稿Agent任务](ecommerce-video-director/agents/script-reviewer.md)：有可用且获准的宿主子Agent时实际审稿、修订并复核当前版本；没有时记录self-review，不冒充独立审查。默认最多两轮，核心问题未解决如实说明。任务文件本身不会自动启动Agent，也不需要安装第二套技能。
+
+审稿既查“动作太多做不完”，也查“动作做完还在摆着等”。[内容节奏规则](ecommerce-video-director/references/pacing.md) 区分内容段、段内变化与最终镜头：不均分时长凑段落，不规定每几秒必须切镜；较长停留须有操作证据、反应、笑点、声音变化或读字需要。新脚本将推进点、停留理由、衔接建议和审稿修订记录放入同一JSON，阅读报告同步保留。真人试读和实物计时仍不可被Agent审稿替代。
+
 参考完整的 [三文件脚本示例](ecommerce-video-director/examples/07-script-package/script.md) 与 [脚本交付契约](ecommerce-video-director/references/script-contract.md)。该例为合成演练，未执行真人试读、实物操作或上线验证。
 
 ```bash
@@ -210,8 +214,11 @@ python3 ecommerce-video-director/scripts/build_script_report.py /你的项目/sc
 
 ```text
 你的项目/
-├── outputs/<项目标识>/<脚本ID>-v01.md
-├── outputs/<项目标识>/<脚本ID>-v01.html
+├── outputs/<项目标识>/内容策划与核查-v01.md
+├── outputs/<项目标识>/内容策划与核查-v01.html
+├── outputs/<项目标识>/<脚本ID>/v01/script.json
+├── outputs/<项目标识>/<脚本ID>/v01/script.md
+├── outputs/<项目标识>/<脚本ID>/v01/report.html
 └── content-assets/<品牌标识>/records/<资产ID>/v0001.json
 ```
 
@@ -247,7 +254,7 @@ python3 ecommerce-video-director/scripts/asset_store.py --root ./content-assets 
 python3 ecommerce-video-director/scripts/render_script.py ./outputs/my-project/script-v01.md
 ```
 
-输出为同目录的 `script-v01.html`。阅读页自包含，无需联网，包含目录导航、按时间顺序的分镜卡片、独立对白区、执行说明、只看分镜切换和打印样式，手机窄屏自动改为单列。源文件使用标题、章节、列表和分镜表，支持的Markdown子集与完整交付检查见 [交付说明](ecommerce-video-director/references/deliverables.md)。
+输出为同目录的 `script-v01.html`。阅读页自包含，无需联网，包含目录导航、按时间顺序的内容卡片、独立对白区、执行说明、只看脚本切换和打印样式，手机窄屏自动改为单列。源文件使用标题、章节、列表和脚本表，支持的Markdown子集与完整交付检查见 [交付说明](ecommerce-video-director/references/deliverables.md)。
 
 上述命令兼容历史MD稿件及上游方案；新编剧包从script.json统一生成MD与HTML。改稿修改源JSON并重生成，不能单改派生HTML；有独立修改时先保留并合并。
 
@@ -258,6 +265,8 @@ video-workflow-skills/
 ├── README.md
 └── ecommerce-video-director/
     ├── SKILL.md                       # 唯一技能入口与默认交互
+    ├── agents/
+    │   └── script-reviewer.md          # 宿主子Agent可调用的独立审稿任务
     ├── references/
     │   ├── direction-selection.md     # 先选择、再展开的执行契约
     │   ├── strategy-and-insight.md    # 商品、观众与表达任务
@@ -268,6 +277,7 @@ video-workflow-skills/
     │   ├── deliverables.md            # 脚本与改稿模板
     │   ├── complete-plan.md           # 三角色完整交付契约
     │   ├── script-contract.md         # 编剧六项交付与JSON字段约定
+    │   ├── pacing.md                  # 内容段、段内推进与反摆拍审查
     │   ├── research.md                # 资料、案例、主张与素材核查
     │   ├── review.md                  # 分类型诊断与评审
     │   ├── asset-workflow.md          # 资产保存、检索与复盘
@@ -285,7 +295,8 @@ video-workflow-skills/
     │   ├── 05-complete-plan.html       # 历史制作链示例阅读页
     │   ├── 06-three-role-plan.md       # 新版三角色完整方案
     │   ├── 06-three-role-plan.html     # 三角色方案HTML阅读页
-    │   └── 07-script-package/          # script.json、script.md、report.html
+    │   ├── 07-script-package/          # script.json、script.md、report.html
+    │   └── 08-pacing-review/           # v2节奏修订与实际审稿记录
     ├── scripts/
     │   ├── asset_store.py             # 保存、检索、索引与检查
     │   ├── render_script.py           # 同版MD生成离线HTML阅读页
