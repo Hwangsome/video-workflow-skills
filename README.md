@@ -18,7 +18,31 @@
 
 ## 快速开始
 
-### 获取完整技能
+### 方式一：复制提示词，让 Agent 安装
+
+如果你使用的 Agent 支持访问 GitHub、读写本地文件和安装技能，可以直接把下面整段发送给它：
+
+```text
+请帮我安装这个仓库中的电商短视频编导技能：
+https://github.com/Hwangsome/video-workflow-skills
+
+需要安装的技能名称：ecommerce-video-director
+仓库内的技能路径：ecommerce-video-director/
+
+请先读取仓库 README 和该目录下的 SKILL.md，再按当前 Agent
+实际支持的技能安装方式，安装完整的 ecommerce-video-director 文件夹，
+保留 references/、scripts/、assets/ 和 evals/，不要只复制 SKILL.md。
+
+如果已有同名技能，请先比较版本、保留本地修改，再处理更新。
+安装后检查入口与相对引用是否可访问，告诉我实际安装位置、
+调用方法，以及是否需要刷新技能列表或开启新会话。
+如果当前环境不支持安装，请说明限制并给出可行的手动加载方式，
+不要把仅下载仓库当成安装完成。
+```
+
+这段提示词用于安装技能，不会自动开始某个商品的策划。安装位置由宿主工具的实际约定决定；普通聊天环境如果没有文件或技能加载能力，不能只靠一个仓库链接完成安装。
+
+### 方式二：手动获取完整技能
 
 ```bash
 gh repo clone Hwangsome/video-workflow-skills
@@ -31,7 +55,7 @@ cd video-workflow-skills
 
 保留整个文件夹：入口会按任务读取 `references/`。普通脚本策划不需要额外安装 Python 包；运行本地资产工具需要 Python 3.10+，仅使用标准库。
 
-### 开始第一次策划
+### 安装后，复制这段开始使用
 
 ```text
 使用 ecommerce-video-director，给一次性马桶刷策划短视频。
