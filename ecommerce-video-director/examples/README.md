@@ -14,6 +14,8 @@
 
 前四条为历史创意脚本演练，第五条为历史制作链方案，均不代表新版职责范围。新版只承担前三个内容角色，以 [第六条MD](06-three-role-plan.md)、[HTML](06-three-role-plan.html) 与 [三角色交付契约](../references/complete-plan.md) 为准：内容策划、调研核查、编剧文案。
 
+第七例是当前编剧六项交付规范：[script.json](07-script-package/script.json)、[script.md](07-script-package/script.md)、[report.html](07-script-package/report.html)。承接第六例的合成策划，记录上游ID、版本和概念，文案备选、交接和自检同存一份数据。未执行真人试读、实物计时、实拍或上线验证，不作为真实品牌成绩。
+
 前三条输入与输出均在各记录中，方向由作者为覆盖不同机制指定；第四条根据用户明确的DE融合反馈编写，产品条件仍为合成假设。记录不冒充真实消费者验证。这些是主Agent实际完成的创作，不是独立上下文盲测。前三条汇总见 [跨品类演练记录](../evals/creative-exercises.md)。
 
 ## 新记录的格式

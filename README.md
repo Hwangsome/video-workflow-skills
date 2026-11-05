@@ -12,7 +12,7 @@
 |---|---|---|
 | 内容策划 / 编导 | 拍给谁？为什么愿意点开、看完、转发？ | 受众定位、选题、核心卖点、创意方向与观看/传播动机 |
 | 调研 / 事实核查 | 内容准确吗？案例可信吗？素材能用吗？ | 资料依据、主张核查、参考案例、素材来源与风险清单 |
-| 编剧 / 文案 | 开头怎么吸引？中间如何推进？结尾留下什么？ | 完整脚本、台词、旁白、字幕与情绪转折 |
+| 编剧 / 文案 | 事情如何发生、人物如何说话、观众如何理解？ | 完整视听脚本为主，配一句话故事与承诺、叙事情绪节奏、文案备选、制作交接、自检 |
 
 默认不承接摄影灯光设计、制片排期、拍摄预算或后期工程验收。关键商品或策略资料不足时先集中补问，沿用已选方向补齐；不拿通用故事或未核实卖点充当完整方案。
 
@@ -152,7 +152,18 @@ cd video-workflow-skills
 | “把这条沉淀下来” | 有来源、版本、标签、适用边界和验证状态的资产 |
 | “上线后为什么表现不同” | 观察、原因假设、比较限制与下一轮内容测试问题 |
 
-完整方案默认交付同名同版的 **Markdown＋HTML**。MD用于编辑和存档；HTML按内容策划、调研核查、编剧文案三个角色排版，依据与素材风险表、完整脚本和情绪转折均保留，支持离线阅读、手机查看和打印。JSON仅为内部检索记录。创意咨询、选方向和局部改稿默认对话交付；用户指定格式优先。
+完整任务保留上游策划与核查的正式 **Markdown＋HTML**，依据与素材风险可读；编剧成案交付 **script.json、script.md、report.html**，关联上游策划的asset_id、版本与concept_id。JSON是完整脚本的内容事实源，MD与HTML由它生成，避免三份分别维护。备选文案、交接、自检均包含在同一JSON内，不另拆文件。HTML按视听主稿、节奏、备选、交接与自检组织，支持离线阅读、手机查看和打印。创意咨询、选方向和局部改稿默认对话交付；用户指定格式优先。
+
+编剧写的是可以表演、拍摄、剪辑的事件：时间、场景、人物动作、画面、完整台词/旁白、关键声音、屏幕文字，不能用“很无奈”“高级感”代替行为。备选说明适用条件和替换影响；交接区分必须保留与可改，列道具、事实待核实项和简化拍法。时长自检明确实际试读/操作计时与文字估算的区别，不凭时间表宣布可行；具体景别、机位和运镜交给后续导演/分镜。
+
+参考完整的 [三文件脚本示例](ecommerce-video-director/examples/07-script-package/script.md) 与 [脚本交付契约](ecommerce-video-director/references/script-contract.md)。该例为合成演练，未执行真人试读、实物操作或上线验证。
+
+```bash
+python3 ecommerce-video-director/scripts/build_script_report.py /你的项目/script.json
+# 可加 --planning /你的项目/planning.json 核对上游引用；默认拒绝覆盖已有派生文件。
+```
+
+工具生成同目录script.md与report.html，检查时间连续、字段完整及主张引用，不能替代事实核查、试读或实物操作。内部资产库的JSON索引与这份正式script.json格式不同。
 
 完整性按三个前期角色判断：策划有理由、事实与素材有核查处理、文案完整。尚未拍摄或上线不等于前期方案未完成，也不能据此宣称效果有效。许可未知的素材明确披露并提出授权核实或替换建议；不把资料依据和风险全部藏在内部JSON。
 
@@ -238,7 +249,7 @@ python3 ecommerce-video-director/scripts/render_script.py ./outputs/my-project/s
 
 输出为同目录的 `script-v01.html`。阅读页自包含，无需联网，包含目录导航、按时间顺序的分镜卡片、独立对白区、执行说明、只看分镜切换和打印样式，手机窄屏自动改为单列。源文件使用标题、章节、列表和分镜表，支持的Markdown子集与完整交付检查见 [交付说明](ecommerce-video-director/references/deliverables.md)。
 
-MD负责内容，HTML负责阅读表现；改稿后重生成并核对两者。已有HTML不会直接覆盖，确认其为同版MD的派生文件后才使用 `--overwrite`，有独立修改时应先保留并合并。
+上述命令兼容历史MD稿件及上游方案；新编剧包从script.json统一生成MD与HTML。改稿修改源JSON并重生成，不能单改派生HTML；有独立修改时先保留并合并。
 
 ## 仓库结构
 
@@ -256,6 +267,7 @@ video-workflow-skills/
     │   ├── production.md              # 表演、声音与拍摄执行
     │   ├── deliverables.md            # 脚本与改稿模板
     │   ├── complete-plan.md           # 三角色完整交付契约
+    │   ├── script-contract.md         # 编剧六项交付与JSON字段约定
     │   ├── research.md                # 资料、案例、主张与素材核查
     │   ├── review.md                  # 分类型诊断与评审
     │   ├── asset-workflow.md          # 资产保存、检索与复盘
@@ -272,10 +284,13 @@ video-workflow-skills/
     │   ├── 05-complete-plan.md         # 历史制作链方案，非新版默认范围
     │   ├── 05-complete-plan.html       # 历史制作链示例阅读页
     │   ├── 06-three-role-plan.md       # 新版三角色完整方案
-    │   └── 06-three-role-plan.html     # 三角色方案HTML阅读页
+    │   ├── 06-three-role-plan.html     # 三角色方案HTML阅读页
+    │   └── 07-script-package/          # script.json、script.md、report.html
     ├── scripts/
     │   ├── asset_store.py             # 保存、检索、索引与检查
     │   ├── render_script.py           # 同版MD生成离线HTML阅读页
+    │   ├── build_script_report.py     # 单份JSON生成脚本MD与HTML
+    │   ├── test_build_script_report.py # 引用、时间线、交付内容完整性测试
     │   ├── test_render_script.py      # 内容保留与渲染安全测试
     │   └── test_asset_store.py        # 资产工具测试
     └── evals/

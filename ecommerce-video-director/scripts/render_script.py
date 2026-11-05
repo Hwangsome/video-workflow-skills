@@ -56,16 +56,19 @@ def table(headers, rows, scene_offset=0):
         return f'<div class="table-scroll"><table><thead><tr>{head}</tr></thead><tbody>{body}</tbody></table></div>', 0
     visual = next(i for i, h in enumerate(headers) if "画面" in h)
     dialogue = next((i for i, h in enumerate(headers) if "对白" in h or "口播" in h or "台词" in h), None)
+    voiceover = next((i for i, h in enumerate(headers) if "旁白" in h), None)
     cards = []
     for n, row in enumerate(rows, scene_offset + 1):
         if len(row) != len(headers):
             raise ValueError(f"分镜表第{n}行列数与表头不一致")
         fields = [f'<div class="field"><span class="small-label">画面与动作</span><p>{inline(row[visual])}</p></div>']
-        if dialogue is not None:
-            fields.append(f'<div class="field dialogue"><span class="small-label">对白 / VOICE</span><p>{inline(row[dialogue])}</p></div>')
+        audio = [i for i in (dialogue, voiceover) if i is not None]
+        if audio:
+            speech = ''.join(f'<span class="small-label">{inline(headers[i])}</span><p>{inline(row[i])}</p>' for i in dict.fromkeys(audio))
+            fields.append(f'<div class="field dialogue">{speech}</div>')
         extra = []
         for i, header in enumerate(headers):
-            if i in {0, visual, dialogue}:
+            if i in {0, visual, dialogue, voiceover}:
                 continue
             extra.append(f'<div class="scene-note"><span class="small-label">{inline(header)}</span><div>{inline(row[i])}</div></div>')
         unit = 'SEGMENT' if '段' in headers[0] else 'SHOT'
@@ -148,11 +151,15 @@ def render(markdown):
         content.append(f'<section class="{classes}" id="section-{index}"><div class="section-heading">{number}<h2>{inline(heading)}</h2></div>{body}</section>')
     overview = f'<div class="overview"><div><strong>{scene_count:02d}</strong><small>分镜 / SHOTS</small></div><div class="overview-copy">从创意到现场<br>动作、对白与执行说明分层阅读</div></div>' if scene_count else ''
     three_roles = any("事实核查" in heading for heading, _ in sections) and any("编剧" in heading for heading, _ in sections)
+    script_package = any("完整视听脚本" in heading for heading, _ in sections)
     is_plan = three_roles or (any("项目简报" in heading for heading, _ in sections) and any("导演设计" in heading for heading, _ in sections))
-    document_kind = "内容策划与脚本方案" if three_roles else ("策划与编导方案" if is_plan else "分镜脚本")
+    document_kind = "内容策划与脚本方案" if three_roles else ("策划与编导方案" if is_plan else ("视听脚本报告" if script_package else "分镜脚本"))
     if three_roles:
         overview = overview.replace('分镜 / SHOTS', '内容段 / SEGMENTS').replace('动作、对白与执行说明分层阅读', '受众与创意 · 依据与核查 · 完整文案')
     reading_label = "CONTENT PLAN / 策划 · 核查 · 文案" if three_roles else ("CREATIVE PLAN / 策划决策与制作执行" if is_plan else "SCRIPT READING COPY / 阅读与拍摄用稿")
+    if script_package:
+        overview = overview.replace('分镜 / SHOTS', '内容段 / SEGMENTS').replace('从创意到现场', '从故事到可表演的行动').replace('动作、对白与执行说明分层阅读', '完整视听脚本 · 备选 · 交接 · 自检')
+        reading_label = "AV SCRIPT / 完整视听脚本"
     browser_title = title if document_kind in title else title + ' · ' + document_kind
     title_style = '<style>.hero h1{font-size:clamp(27px,3vw,38px);text-wrap:balance}</style>' if has_plan_title else ''
     return f'''<!doctype html>
