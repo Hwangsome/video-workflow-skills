@@ -31,7 +31,7 @@ https://github.com/Hwangsome/video-workflow-skills
 
 请先读取仓库 README 和该目录下的 SKILL.md，再按当前 Agent
 实际支持的技能安装方式，安装完整的 ecommerce-video-director 文件夹，
-保留 references/、scripts/、assets/ 和 evals/，不要只复制 SKILL.md。
+保留 references/、scripts/、assets/、examples/ 和 evals/，不要只复制 SKILL.md。
 
 如果已有同名技能，请先比较版本、保留本地修改，再处理更新。
 安装后检查入口与相对引用是否可访问，告诉我实际安装位置、
@@ -162,6 +162,12 @@ cd video-workflow-skills
 
 想看完整脚本颗粒度，可以读 [同一商品的五方向练习](ecommerce-video-director/references/worked-example.md)。示例用于解释方法，不是以后所有商品都要套用的情节。
 
+### 跨品类创作记录
+
+新增 [examples/](ecommerce-video-director/examples/README.md) 保存完整的输入、候选、选择过程、实际脚本、评审与未验证项。目前包含粘毛器、挂耳咖啡、双向拉链外套三个固定任务的创作演练，分别使用尺度揭示、生活声画和选购观点，不把所有商品都套成面试或辞职。
+
+每条会注明希望观众记住的具体特点、对应镜号与选择理由。示例资料是合成条件，方向由作者为演练指定，未进行样品、观众或上线验证；本次实际输出和自查范围见 [演练记录](ecommerce-video-director/evals/creative-exercises.md)。真实品牌交付不自动公开到示例库。
+
 ## 怎样沉淀资产
 
 资产不只是一份“好脚本合集”，还要保留来源、适用条件和结论的可信程度。
@@ -228,11 +234,17 @@ video-workflow-skills/
     │   └── source-map.md              # 来源与改编边界
     ├── assets/
     │   └── script-record.example.json # 虚构结构化记录
+    ├── examples/
+    │   ├── README.md                  # 案例索引与新增记录规范
+    │   ├── 01-lint-roller.md           # 家清：尺度揭示与产品操作
+    │   ├── 02-drip-coffee.md           # 食品：声音与生活时间片
+    │   └── 03-two-way-zipper.md        # 服饰：选购观点与结构演示
     ├── scripts/
     │   ├── asset_store.py             # 保存、检索、索引与检查
     │   └── test_asset_store.py        # 工具测试
     └── evals/
-        └── scenarios.json             # 行为回归场景与预期
+        ├── scenarios.json             # 行为回归场景与预期
+        └── creative-exercises.md      # 跨品类演练输出与自查范围
 ```
 
 ## 使用边界与验证状态
