@@ -207,19 +207,6 @@ python3 ecommerce-video-director/scripts/asset_store.py --root ./content-assets 
 
 字段、状态与工具边界见 [资产工作流](ecommerce-video-director/references/asset-workflow.md)。实际项目的 `outputs/` 和 `content-assets/` 默认被 Git 忽略，不随本仓库上传。
 
-## 方法从哪里来
-
-本技能整合了原仓库的 `script-director` 与 `save-the-cat-screenwriting`，整理了25张能力卡的改编去向。
-
-- 从《让创意更有黏性》的整理材料中，提取核心取舍、具体化、注意、情感与可信表达方法。
-- 从《救猫咪》的整理材料中，提取一句话提案、人物目标、故事类型、因果、对白与改稿方法。
-- 参考 [cangjie-skill](https://github.com/kangarooking/cangjie-skill) 的能力卡和可执行契约写法，明确触发、输入输出、完成标准与停止条件。
-- 补充参考 TikTok Creative Codes、Google ABCDs 等官方创意指导，并保留平台与任务边界。
-
-电影的15节拍、40张场景卡、固定情绪数量等没有被照搬成短视频硬规则。本技能中的方向矩阵、选择流程、资产工具和练习，是面向该岗位的改编。
-
-完整来源和取舍见 [来源映射](ecommerce-video-director/references/source-map.md)。原两套技能可在 [初始提交 cbbc441](https://github.com/Hwangsome/video-workflow-skills/tree/cbbc44115b8f4d07e2f57acb42bc31823b7073e0) 查阅；使用新版无需安装它们。本项目不是 cangjie-skill 的官方编译产物。
-
 ## 仓库结构
 
 ```text
