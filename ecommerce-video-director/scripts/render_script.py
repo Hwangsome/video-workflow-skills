@@ -49,7 +49,7 @@ def cells(line):
 
 
 def table(headers, rows, scene_offset=0):
-    shot = len(headers) >= 3 and "镜" in headers[0] and any("画面" in h for h in headers)
+    shot = len(headers) >= 3 and any(word in headers[0] for word in ("镜", "段")) and any("画面" in h for h in headers)
     if not shot:
         head = "".join(f"<th>{inline(h)}</th>" for h in headers)
         body = "".join("<tr>" + "".join(f"<td>{inline(c)}</td>" for c in row) + "</tr>" for row in rows)
@@ -68,7 +68,8 @@ def table(headers, rows, scene_offset=0):
             if i in {0, visual, dialogue}:
                 continue
             extra.append(f'<div class="scene-note"><span class="small-label">{inline(header)}</span><div>{inline(row[i])}</div></div>')
-        cards.append(f'<article class="scene" id="scene-{n}"><div class="scene-top"><span class="scene-num">SHOT {n:02d}</span><span class="scene-time">{inline(row[0])}</span></div><div class="scene-body">{"".join(fields)}</div>{"".join(extra)}</article>')
+        unit = 'SEGMENT' if '段' in headers[0] else 'SHOT'
+        cards.append(f'<article class="scene" id="scene-{n}"><div class="scene-top"><span class="scene-num">{unit} {n:02d}</span><span class="scene-time">{inline(row[0])}</span></div><div class="scene-body">{"".join(fields)}</div>{"".join(extra)}</article>')
     return '<div class="scenes">' + "".join(cards) + '</div>', len(rows)
 
 
@@ -114,7 +115,7 @@ def render(markdown):
     if not lines or not lines[0].startswith("# "):
         raise ValueError("Markdown首行必须是#标题")
     title = lines.pop(0)[2:].strip()
-    has_plan_title = "策划与编导方案" in title
+    has_plan_title = any(word in title for word in ("策划与编导方案", "内容策划与脚本方案"))
     preamble, sections, current, heading = [], [], [], None
     for line in lines:
         if line.startswith("## "):
@@ -146,9 +147,12 @@ def render(markdown):
         number = '' if re.match(r"^\d+[ .、]", heading) else f'<span class="section-number">{index:02d}</span>'
         content.append(f'<section class="{classes}" id="section-{index}"><div class="section-heading">{number}<h2>{inline(heading)}</h2></div>{body}</section>')
     overview = f'<div class="overview"><div><strong>{scene_count:02d}</strong><small>分镜 / SHOTS</small></div><div class="overview-copy">从创意到现场<br>动作、对白与执行说明分层阅读</div></div>' if scene_count else ''
-    is_plan = any("项目简报" in heading for heading, _ in sections) and any("导演设计" in heading for heading, _ in sections)
-    document_kind = "策划与编导方案" if is_plan else "分镜脚本"
-    reading_label = "CREATIVE PLAN / 策划决策与制作执行" if is_plan else "SCRIPT READING COPY / 阅读与拍摄用稿"
+    three_roles = any("事实核查" in heading for heading, _ in sections) and any("编剧" in heading for heading, _ in sections)
+    is_plan = three_roles or (any("项目简报" in heading for heading, _ in sections) and any("导演设计" in heading for heading, _ in sections))
+    document_kind = "内容策划与脚本方案" if three_roles else ("策划与编导方案" if is_plan else "分镜脚本")
+    if three_roles:
+        overview = overview.replace('分镜 / SHOTS', '内容段 / SEGMENTS').replace('动作、对白与执行说明分层阅读', '受众与创意 · 依据与核查 · 完整文案')
+    reading_label = "CONTENT PLAN / 策划 · 核查 · 文案" if three_roles else ("CREATIVE PLAN / 策划决策与制作执行" if is_plan else "SCRIPT READING COPY / 阅读与拍摄用稿")
     browser_title = title if document_kind in title else title + ' · ' + document_kind
     title_style = '<style>.hero h1{font-size:clamp(27px,3vw,38px);text-wrap:balance}</style>' if has_plan_title else ''
     return f'''<!doctype html>

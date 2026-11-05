@@ -107,12 +107,15 @@ def validate(record):
     if kind == "script":
         if record["status"] == "方案完成":
             sections = content.get("plan_sections", {})
-            required = ("brief", "strategy", "concept", "copy", "direction", "storyboard", "production", "handoff")
+            three_roles = content.get("plan_model") == "preproduction-three-role-v1"
+            required = ("planning", "research", "writing") if three_roles else ("brief", "strategy", "concept", "copy", "direction", "storyboard", "production", "handoff")
             if not isinstance(sections, dict) or any(not isinstance(sections.get(key), str) or not sections[key].strip() for key in required):
-                raise ValueError("方案完成记录须包含plan_sections的八部分内容或文件定位")
+                raise ValueError("方案完成记录须包含plan_sections中对应交付范围的内容或文件定位")
             if content.get("critical_inputs_missing"):
                 raise ValueError("核心商品/策略输入缺失，不能标为方案完成")
-            if content.get("production_readiness") not in {"待落实", "就绪"}:
+            if three_roles and not isinstance(content.get("verification_summary"), str):
+                raise ValueError("三角色方案须说明verification_summary核查范围与未决项")
+            if not three_roles and content.get("production_readiness") not in {"待落实", "就绪"}:
                 raise ValueError("须单独记录production_readiness：待落实/就绪")
         if not isinstance(content.get("direction"), str) or not content["direction"].strip():
             raise ValueError("脚本缺少content.direction")

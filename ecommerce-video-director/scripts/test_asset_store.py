@@ -49,6 +49,17 @@ class AssetStoreTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             self.save(record)
 
+    def test_three_role_plan_does_not_require_production(self):
+        record = copy.deepcopy(self.sample)
+        record["status"] = "方案完成"
+        record["content"].update(plan_model="preproduction-three-role-v1", critical_inputs_missing=[],
+            plan_sections={key: f"方案.md#{key}" for key in ("planning", "research", "writing")},
+            verification_summary="产品依据来自用户资料；外部音乐未使用；无实测结论")
+        self.save(record)
+        del record["content"]["plan_sections"]["research"]
+        with self.assertRaises(ValueError):
+            self.save(record)
+
     def test_reject_path_traversal_and_symlink(self):
         for value in ("../outside", "/tmp/example", "demo/name", ".."):
             record = copy.deepcopy(self.sample)

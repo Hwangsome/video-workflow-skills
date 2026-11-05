@@ -82,12 +82,12 @@ python3 <技能目录>/scripts/asset_store.py --root ./content-assets check
 |---|---|---|
 | fact | 用户提供但未独立核验 / 有来源支持 / 已过期 / 被更正 | claim, scope；sources 非空 |
 | pattern | 待验证 / 有观察支持 / 多次观察支持 / 条件失效 | mechanism, applies_when, avoid_when, memorable_moment |
-| script | 方案完成；兼容旧创意草案 / 待核实 / 可拍摄稿 | direction, concept, target_duration, shots；方案完成另需八部分定位 |
+| script | 方案完成；兼容旧创意草案 / 待核实 / 可拍摄稿 | direction, concept, target_duration, shots；新版完成记录另需三个角色的内容定位 |
 | review | 待补数据 / 观察记录 / 可比较记录 | observations, hypotheses, limitations, next_test |
 
 `content` 可扩展保存本文前面定义的字段，例如 SKU、有效期、时间窗口、指标与样本量。`used_assets` 用 `[{"id":"FACT-001","version":1}]` 锁定实际引用版本；links 用于导航，不锁版本。`revision_reason` 记录修订理由。不要只存必填项就丢掉任务需要的证据。
 
-完整方案记录用`status:方案完成`，并提供`content.plan_sections`：brief、strategy、concept、copy、direction、storyboard、production、handoff八个非空文本或文件定位；`critical_inputs_missing`非空不能标完成。另用`production_readiness:待落实/就绪`区分开拍条件，生产待办可存`production_checklist`。旧记录保留原状态，不自动升级。工具只核查结构，不证明内容有质量或引用文件已获核实；对八部分做人工岗位检查仍是必需的。
+新版完整方案记录用`status:方案完成`、`content.plan_model:preproduction-three-role-v1`，`plan_sections`含planning、research、writing三项非空内容或文件定位，`verification_summary`说明核查范围和未决项。`critical_inputs_missing`非空不能标完成。无需production_readiness、拍摄排期或导出配置，不能把后续制作条件误作前期交付完成条件。旧八部分记录兼容保留，不自动迁移或升级。工具仅检查结构，不证明策略质量、事实真实或素材已获授权，三角色内容仍须人工核对。
 
 每镜 `start/end` 为秒，`visual` 为画面；可补 dialogue、subtitle、audio、purpose、fact_ids。时间从0开始、连续无重叠且结束与target_duration相符。`unresolved` 为非空时不能保存为可拍摄稿。有观察支持的机制必须关联复盘 ID，但脚本不判断该复盘质量，人工仍须核查，不能据校验通过升级结论。
 
