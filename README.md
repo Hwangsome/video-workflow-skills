@@ -142,7 +142,7 @@ cd video-workflow-skills
 | “把这条沉淀下来” | 有来源、版本、标签、适用边界和验证状态的资产 |
 | “上线后为什么表现不同” | 观察、原因假设、比较限制与下一轮内容测试问题 |
 
-完整策划默认保存 Markdown，不强制生成 HTML、PDF 或视频。只有创意咨询、局部改稿时，默认在对话中交付；用户指定的格式和目录优先。
+完整脚本默认同时交付同名同版的 **Markdown＋HTML**。MD用于编辑和存档；HTML按创意说明、时间线分镜、对白、声画与执行事项分层排版，支持离线阅读、手机查看和打印。JSON仅为可选的内部检索记录，不能代替这两种交付。创意咨询、选方向和局部改稿默认对话交付；用户明确指定格式时优先。
 
 稿件会区分 **创意草案、待核实、可拍摄稿**。待核实的关键事实或尚未完成的关键测试，不会被藏进“可直接发布”的台词里。
 
@@ -190,6 +190,7 @@ cd video-workflow-skills
 ```text
 你的项目/
 ├── outputs/<项目标识>/<脚本ID>-v01.md
+├── outputs/<项目标识>/<脚本ID>-v01.html
 └── content-assets/<品牌标识>/records/<资产ID>/v0001.json
 ```
 
@@ -216,6 +217,18 @@ python3 ecommerce-video-director/scripts/asset_store.py --root ./content-assets 
 保存命令返回实际路径和版本号；检查成功返回 `ok: true`。字段缺失、镜头时间不连续或关联资产不存在时，工具报错并以非零状态退出。校验范围不包括事实真伪和创意效果。
 
 字段、状态与工具边界见 [资产工作流](ecommerce-video-director/references/asset-workflow.md)。实际项目的 `outputs/` 和 `content-assets/` 默认被 Git 忽略，不随本仓库上传。
+
+### 生成脚本的 HTML 阅读页
+
+先完成MD，再从同一份文件生成HTML。在仓库根目录运行，示例路径替换为你的实际脚本：
+
+```bash
+python3 ecommerce-video-director/scripts/render_script.py ./outputs/my-project/script-v01.md
+```
+
+输出为同目录的 `script-v01.html`。阅读页自包含，无需联网，包含目录导航、按时间顺序的分镜卡片、独立对白区、执行说明、只看分镜切换和打印样式，手机窄屏自动改为单列。源文件使用标题、章节、列表和分镜表，支持的Markdown子集与完整交付检查见 [交付说明](ecommerce-video-director/references/deliverables.md)。
+
+MD负责内容，HTML负责阅读表现；改稿后重生成并核对两者。已有HTML不会直接覆盖，确认其为同版MD的派生文件后才使用 `--overwrite`，有独立修改时应先保留并合并。
 
 ## 仓库结构
 
@@ -246,7 +259,9 @@ video-workflow-skills/
     │   └── 04-style-fusion.md          # D+E两种风格融合为一条脚本
     ├── scripts/
     │   ├── asset_store.py             # 保存、检索、索引与检查
-    │   └── test_asset_store.py        # 工具测试
+    │   ├── render_script.py           # 同版MD生成离线HTML阅读页
+    │   ├── test_render_script.py      # 内容保留与渲染安全测试
+    │   └── test_asset_store.py        # 资产工具测试
     └── evals/
         ├── scenarios.json             # 行为回归场景与预期
         └── creative-exercises.md      # 跨品类演练输出与自查范围
