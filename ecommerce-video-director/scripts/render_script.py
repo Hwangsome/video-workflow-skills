@@ -114,6 +114,7 @@ def render(markdown):
     if not lines or not lines[0].startswith("# "):
         raise ValueError("Markdown首行必须是#标题")
     title = lines.pop(0)[2:].strip()
+    has_plan_title = "策划与编导方案" in title
     preamble, sections, current, heading = [], [], [], None
     for line in lines:
         if line.startswith("## "):
@@ -142,12 +143,18 @@ def render(markdown):
         elif "核实" in heading or "自查" in heading or "验证" in heading:
             classes += " notes"
         nav.append(f'<a href="#section-{index}" {"data-shots" if added else ""}>{inline(heading)}</a>')
-        content.append(f'<section class="{classes}" id="section-{index}"><div class="section-heading"><span class="section-number">{index:02d}</span><h2>{inline(heading)}</h2></div>{body}</section>')
+        number = '' if re.match(r"^\d+[ .、]", heading) else f'<span class="section-number">{index:02d}</span>'
+        content.append(f'<section class="{classes}" id="section-{index}"><div class="section-heading">{number}<h2>{inline(heading)}</h2></div>{body}</section>')
     overview = f'<div class="overview"><div><strong>{scene_count:02d}</strong><small>分镜 / SHOTS</small></div><div class="overview-copy">从创意到现场<br>动作、对白与执行说明分层阅读</div></div>' if scene_count else ''
+    is_plan = any("项目简报" in heading for heading, _ in sections) and any("导演设计" in heading for heading, _ in sections)
+    document_kind = "策划与编导方案" if is_plan else "分镜脚本"
+    reading_label = "CREATIVE PLAN / 策划决策与制作执行" if is_plan else "SCRIPT READING COPY / 阅读与拍摄用稿"
+    browser_title = title if document_kind in title else title + ' · ' + document_kind
+    title_style = '<style>.hero h1{font-size:clamp(27px,3vw,38px);text-wrap:balance}</style>' if has_plan_title else ''
     return f'''<!doctype html>
-<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="light"><title>{escape(title)} · 分镜脚本</title><style>{CSS}</style></head>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="light"><title>{escape(browser_title)}</title><style>{CSS}</style>{title_style}</head>
 <body><div class="layout"><aside class="rail"><div class="wordmark">片场手记<span>ECOMMERCE / SCRIPT</span></div><div><div class="rail-label">本稿目录 / CONTENTS</div><nav aria-label="脚本目录">{"".join(nav)}</nav></div><div class="rail-footer"><span class="status-dot"></span>以文首稿件状态为准<br>创作说明 · 分镜 · 执行<br>完整内容来自同版 Markdown</div></aside>
-<main><div class="toolbar"><span class="document-label">SCRIPT READING COPY / 阅读与拍摄用稿</span><div class="controls"><button id="focus-button" type="button" aria-pressed="false">只看分镜</button><button type="button" onclick="window.print()">打印 / PDF</button></div></div><header class="hero"><div class="eyebrow">CREATIVE DIRECTION · 创意编导</div><h1>{inline(title)}</h1><div class="chips">{chips}</div>{overview}</header>{"".join(content)}<footer class="footer"><span>片场手记 / 电商短视频脚本</span><span>与 Markdown 同源 · 可离线阅读 · 支持打印</span></footer></main></div>
+<main><div class="toolbar"><span class="document-label">{reading_label}</span><div class="controls"><button id="focus-button" type="button" aria-pressed="false">只看分镜</button><button type="button" onclick="window.print()">打印 / PDF</button></div></div><header class="hero"><div class="eyebrow">CREATIVE DIRECTION · 创意编导</div><h1>{inline(title)}</h1><div class="chips">{chips}</div>{overview}</header>{"".join(content)}<footer class="footer"><span>片场手记 / 电商短视频{document_kind}</span><span>与 Markdown 同源 · 可离线阅读 · 支持打印</span></footer></main></div>
 <script>const focusButton=document.querySelector('#focus-button');focusButton.addEventListener('click',()=>{{const focused=document.body.classList.toggle('focus');focusButton.setAttribute('aria-pressed',String(focused));focusButton.textContent=focused?'查看完整稿':'只看分镜';}});const observer=new IntersectionObserver(entries=>{{for(const entry of entries){{if(entry.isIntersecting){{document.querySelectorAll('nav a').forEach(link=>link.classList.toggle('active',link.hash==='#'+entry.target.id));}}}}}},{{rootMargin:'-5% 0px -65% 0px'}});document.querySelectorAll('main section').forEach(section=>observer.observe(section));</script></body></html>'''
 
 

@@ -15,7 +15,7 @@ from datetime import datetime, timezone
 STATES = {
     "fact": {"用户提供但未独立核验", "有来源支持", "已过期", "被更正"},
     "pattern": {"待验证", "有观察支持", "多次观察支持", "条件失效"},
-    "script": {"创意草案", "待核实", "可拍摄稿"},
+    "script": {"创意草案", "待核实", "可拍摄稿", "方案完成"},
     "review": {"待补数据", "观察记录", "可比较记录"},
 }
 FIELDS = {
@@ -105,6 +105,15 @@ def validate(record):
     if kind == "pattern" and record["status"] in {"有观察支持", "多次观察支持"} and not record.get("links"):
         raise ValueError("有观察支持的机制须关联复盘ID")
     if kind == "script":
+        if record["status"] == "方案完成":
+            sections = content.get("plan_sections", {})
+            required = ("brief", "strategy", "concept", "copy", "direction", "storyboard", "production", "handoff")
+            if not isinstance(sections, dict) or any(not isinstance(sections.get(key), str) or not sections[key].strip() for key in required):
+                raise ValueError("方案完成记录须包含plan_sections的八部分内容或文件定位")
+            if content.get("critical_inputs_missing"):
+                raise ValueError("核心商品/策略输入缺失，不能标为方案完成")
+            if content.get("production_readiness") not in {"待落实", "就绪"}:
+                raise ValueError("须单独记录production_readiness：待落实/就绪")
         if not isinstance(content.get("direction"), str) or not content["direction"].strip():
             raise ValueError("脚本缺少content.direction")
         errors = lint_shots(content)

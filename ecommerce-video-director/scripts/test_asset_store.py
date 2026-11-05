@@ -35,6 +35,20 @@ class AssetStoreTests(unittest.TestCase):
         self.assertEqual(json.loads(Path(first["saved"]).read_text())["title"], self.sample["title"])
         self.assertEqual(store.latest(store.records(self.root))[0][1]["title"], "第二版")
 
+    def test_completed_plan_and_pending_production_are_separate(self):
+        record = copy.deepcopy(self.sample)
+        record["status"] = "方案完成"
+        record["content"]["critical_inputs_missing"] = []
+        record["content"]["production_readiness"] = "待落实"
+        with self.assertRaises(ValueError):
+            self.save(record)
+        record["content"]["plan_sections"] = {key: f"方案.md#{key}" for key in
+            ("brief", "strategy", "concept", "copy", "direction", "storyboard", "production", "handoff")}
+        self.save(record)
+        record["content"]["critical_inputs_missing"] = ["商品结构未知"]
+        with self.assertRaises(ValueError):
+            self.save(record)
+
     def test_reject_path_traversal_and_symlink(self):
         for value in ("../outside", "/tmp/example", "demo/name", ".."):
             record = copy.deepcopy(self.sample)
