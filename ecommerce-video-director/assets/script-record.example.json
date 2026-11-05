@@ -1,0 +1,21 @@
+{
+  "id": "SCR-demo-001",
+  "brand": "demo",
+  "kind": "script",
+  "title": "支架申请下班（虚构练习）",
+  "status": "创意草案",
+  "tags": ["搞怪", "拟人", "桌面", "单人"],
+  "sources": ["虚构练习：仅假设支架可折叠，实际SKU与用法未确认"],
+  "links": [],
+  "content": {
+    "direction": "搞怪离谱",
+    "concept": "支架写辞职信要求下班，主人认真面谈后让它折叠躺平。",
+    "target_duration": 15,
+    "unresolved": ["确认实际产品折叠方式并试拍"],
+    "shots": [
+      {"start": 0, "end": 4, "visual": "桌面近景，支架旁立着纸片辞职信；人物伸手拿起。", "dialogue": "画外音：你下班了，我为什么还站着？", "purpose": "建立物件职场拟人规则"},
+      {"start": 4, "end": 10, "visual": "人物正经拉近椅子，低头读信；视线移到支架，停半拍。", "dialogue": "人物：诉求收到。今天就办。", "purpose": "认真态度强化荒诞"},
+      {"start": 10, "end": 15, "visual": "特写，手按实际用法折叠支架，盖一张纸片被子。", "subtitle": "批准躺平", "purpose": "折叠动作回收笑点与商品记忆"}
+    ]
+  }
+}

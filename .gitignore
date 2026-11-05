@@ -1,0 +1,11 @@
+# Local project deliveries and brand-specific assets
+/outputs/
+/content-assets/
+
+# Original source skills remain locally; archived in commit cbbc441
+/script-director/
+/save-the-cat-screenwriting/
+
+__pycache__/
+*.pyc
+.DS_Store
